@@ -6,9 +6,9 @@ just like page.on(), page.route() also asynchronous
 
 **Key Differences and Behavior**
 
-- **Registration vs Execution**: Calling `await page.route()` registers the network interceptor asynchronously. However, the internal handler callback itself is triggered dynamically whenever a matching network request in-flight occurs on the page. [(https://mergify.com/blog/playwright-route-handlers-after-page-goto),(https://www.linkedin.com/pulse/mastering-real-time-browser-interactions-playwrights-pageon-v-xt20c)]
-- **Handling Promises inside Routes**: The callback function provided to `page.route()` can also be marked as `async`, allowing you to call asynchronous methods on the `route` object (such as `await route.fulfill()`, `await route.continue()`, or `await route.fetch()`). [(https://github.com/microsoft/playwright/issues/26689),(https://playwright.dev/docs/api/class-route),(https://qaskills.sh/blog/playwright-route-fulfill-mock-api-guide)]
-- **Comparison with** **`page.on()`**: Unlike `page.on()`, which merely attaches an event listener synchronously to stream notifications (like console logs or request lifecycles), `page.route()` actively alters network traffic and requires proper asynchronous setup before triggering navigations or actions that fire those requests. [(https://www.linkedin.com/pulse/when-use-pageroute-pageon-playwright-shilpashree-v-6lnnc),(https://www.linkedin.com/pulse/mastering-real-time-browser-interactions-playwrights-pageon-v-xt20c),(https://github.com/microsoft/playwright/issues/26689),(https://mergify.com/blog/playwright-route-handlers-after-page-goto)]
+- **Registration vs Execution**: Calling `await page.route()` registers the network interceptor asynchronously. However, the internal handler callback itself is triggered dynamically whenever a matching network request in-flight occurs on the page.
+- **Handling Promises inside Routes**: The callback function provided to `page.route()` can also be marked as `async`, allowing you to call asynchronous methods on the `route` object (such as `await route.fulfill()`, `await route.continue()`, or `await route.fetch()`). 
+- **Comparison with** **`page.on()`**: Unlike `page.on()`, which merely attaches an event listener synchronously to stream notifications (like console logs or request lifecycles), `page.route()` actively alters network traffic and requires proper asynchronous setup before triggering navigations or actions that fire those requests.
 
 ## You said: what is page.on() or page.once () which is used to handle alerts, window pop-up etc
 
