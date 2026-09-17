@@ -349,6 +349,10 @@ The important lesson is:
 
 Each worker has its own process and setup context.
 
+With fullyParallel: true, a beforeAll hook is triggered exactly once per worker that touches that test file.
+
+If your suite runs on 4 workers, it triggers 4 times. If you increase your CI pipeline to 8 workers, it will trigger 8 times.
+
 ---
 
 # 10. Test Isolation Requirement
