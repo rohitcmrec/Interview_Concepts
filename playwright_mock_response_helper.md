@@ -1,3 +1,27 @@
+async mockResponse(
+        method: string,
+        urlPattern: string,
+        options: { status: number; body: unknown; headers?: Record<string, string> }
+    ): Promise<void> {
+        const { status, body, headers } = options
+
+        await this.page.route(urlPattern, (route) => {
+            if (route.request().method().toUpperCase() === method.toUpperCase()) {
+                route.fulfill({
+                    status,
+                    contentType: 'application/json',
+                    body: JSON.stringify(body),
+                    headers
+                })
+            } else {
+                route.continue()
+            }
+        })
+
+        this.registeredPatterns.push(urlPattern)
+    }
+
+
 # Generic Playwright API Mocking Helper --- Step-by-Step Breakdown
 
 This code creates a generic, reusable helper function inside a test
