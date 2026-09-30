@@ -1,15 +1,3 @@
-just like page.on(), page.route() also asynchronous
-
-14 September 2026
-
-**Yes,** **`page.route()`** **is an asynchronous operation in Playwright that returns a Promise, meaning you should use** **`await page.route(...)`** **in async/await environments.**
-
-**Key Differences and Behavior**
-
-- **Registration vs Execution**: Calling `await page.route()` registers the network interceptor asynchronously. However, the internal handler callback itself is triggered dynamically whenever a matching network request in-flight occurs on the page.
-- **Handling Promises inside Routes**: The callback function provided to `page.route()` can also be marked as `async`, allowing you to call asynchronous methods on the `route` object (such as `await route.fulfill()`, `await route.continue()`, or `await route.fetch()`). 
-- **Comparison with** **`page.on()`**: Unlike `page.on()`, which merely attaches an event listener synchronously to stream notifications (like console logs or request lifecycles), `page.route()` actively alters network traffic and requires proper asynchronous setup before triggering navigations or actions that fire those requests.
-
 ## You said: what is page.on() or page.once () which is used to handle alerts, window pop-up etc
 
 what is page.on() or page.once () which is used to handle alerts, window pop-up etc
@@ -308,3 +296,109 @@ Because your script didn't wait, a race happens:
 
 - `page.on()` is just taking a note in your local script. **No waiting needed.**
 - `page.route()` is sending an order to a separate program (Chrome) to change its network hardware settings. **You must wait (****`await`****) for Chrome to confirm it's ready.**
+
+
+
+# Playwright: `once()`, `on()` vs `waitForEvent()`
+
+## The simplest way to remember it
+
+Don't think:
+
+> "`once()` is bad for popup."
+
+That's **not true**.
+
+Think:
+
+> **`once()` / `on()` are event listeners.**
+
+They answer:
+
+**"What should I do when this event happens?"**
+
+Whereas:
+
+> **`waitForEvent()` is an awaitable wait.**
+
+It answers:
+
+**"I want my test to wait until this event happens and give me the event object."**
+
+---
+
+## Popup
+
+That's why you often see this pattern for popups:
+
+```text
+wait for popup + perform action
+          ↓
+      get popup
+          ↓
+   continue test
+```
+
+The important point is that the **main test needs the popup object** so that it can continue interacting with the new page.
+
+For example, conceptually:
+
+```text
+wait for popup
+      +
+perform action
+      ↓
+popup appears
+      ↓
+get popup Page object
+      ↓
+continue testing popup
+```
+
+---
+
+## Dialog
+
+For dialogs, this pattern is very natural:
+
+```text
+register handler
+       ↓
+perform action
+       ↓
+dialog appears
+       ↓
+handler accepts it
+```
+
+The callback itself handles the dialog.
+
+The main test doesn't necessarily need to receive the dialog object and use it later.
+
+---
+
+## The important distinction
+
+**`once()` / `on()` → "What should I do when this event happens?"**
+
+**`waitForEvent()` → "I want my test to wait until this event happens and give me the event object."**
+
+### `once()`
+
+> Listen for the next occurrence and execute the callback.
+
+### `on()`
+
+> Keep listening and execute the callback every time the event occurs.
+
+### `waitForEvent()`
+
+> Return a Promise that resolves when the event occurs, so the main test can explicitly `await` it.
+
+---
+
+## Key takeaway
+
+A `page.once()` dialog callback can execute **without explicitly pausing the main test**.
+
+The important distinction is whether the event is simply being **handled by a callback** or whether the **main test flow needs to receive and work with**
