@@ -625,37 +625,5 @@ This is a useful mental model for understanding Playwright's parallel execution.
 10. Shared database records, users, files, or external resources can cause race conditions and flaky tests.
 
 ---
+mode: 'parallel' → tests in the describe can run in parallel → each test is isolated into a parallel group → beforeAll/afterAll can run again for each group.
 
-## Quick Reference
-
-```typescript
-export default defineConfig({
-  workers: 3,
-  fullyParallel: true,
-});
-```
-
-Think:
-
-```text
-              Playwright Scheduler
-                       |
-                Test Work Queue
-                       |
-           +-----------+-----------+
-           |           |           |
-           v           v           v
-        Worker 1    Worker 2    Worker 3
-           |           |           |
-           v           v           v
-        Test A      Test B      Test C
-           |           |           |
-           +-----------+-----------+
-                       |
-                 More Tests...
-                       |
-              Until Queue Empty
-```
-
-> **One-line interview answer:**  
-> With `workers: 3` and `fullyParallel: true`, Playwright can run up to three independent worker processes concurrently, and individual tests can be dynamically distributed among those workers rather than keeping all tests from a file on a single worker.
